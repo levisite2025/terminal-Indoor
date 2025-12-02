@@ -2,7 +2,10 @@ import { GoogleGenAI, Type } from "@google/genai";
 import { SystemMetrics, AISystemAnalysis } from '../types';
 
 const getAiClient = () => {
-  const apiKey = process.env.API_KEY;
+  // CRITICAL FIX: Safe access for process.env in browser environments
+  // Chrome 142+ and other strict environments will crash if 'process' is accessed directly without a shim.
+  const apiKey = (typeof process !== 'undefined' && process.env) ? process.env.API_KEY : undefined;
+  
   if (!apiKey) {
     console.warn("API_KEY is missing. Using fallback mock service.");
     return null;

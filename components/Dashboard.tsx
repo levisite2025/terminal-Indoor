@@ -79,7 +79,7 @@ const Dashboard: React.FC<DashboardProps> = ({ metricsHistory, currentMetric, lo
   };
 
   return (
-    <div className="min-h-screen bg-slate-950 flex flex-col font-sans">
+    <div className="min-h-screen bg-slate-950 flex flex-col font-sans h-full">
       {/* Top Bar */}
       <header className="bg-slate-900 border-b border-slate-800 h-16 flex items-center justify-between px-6 sticky top-0 z-30 shadow-md">
         <div className="flex items-center gap-3">
@@ -174,7 +174,7 @@ const Dashboard: React.FC<DashboardProps> = ({ metricsHistory, currentMetric, lo
                 </div>
               </div>
               <div className="h-[300px] w-full">
-                {metricsHistory.length > 0 ? (
+                {metricsHistory && metricsHistory.length > 0 ? (
                   <ResponsiveContainer width="100%" height="100%">
                     <AreaChart data={metricsHistory}>
                       <defs>
