@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useCallback } from 'react';
+import React, { useState, useEffect } from 'react';
 import ConnectionPanel from './components/ConnectionPanel';
 import Dashboard from './components/Dashboard';
 import AdPlayer from './components/AdPlayer';
@@ -41,7 +41,7 @@ const App: React.FC = () => {
     status: 'OPTIMAL'
   });
   const [history, setHistory] = useState<SystemMetrics[]>([]);
-  const [logs, setLogs] = useState<LogEntry[]>(MOCK_LOGS);
+  const [logs, setLogs] = useState<LogEntry[]>([]);
 
   // Initialize history
   useEffect(() => {
@@ -53,28 +53,9 @@ const App: React.FC = () => {
       initialHistory.push(tempMetric);
     }
     setHistory(initialHistory);
+    // Initialize with some historical logs if needed, but we'll clear for a fresh "boot" feel on connect
+    setLogs(MOCK_LOGS); 
   }, []);
-
-  // Connection Handler
-  const handleConnect = (newConfig: ConnectionConfig) => {
-    setIsConnecting(true);
-    // Simulate network handshake
-    setTimeout(() => {
-      setConfig(newConfig);
-      setIsConnecting(false);
-      addLog('INFO', `Successfully connected to system via ${newConfig.type} (${newConfig.address})`);
-      if (newConfig.type === ConnectionType.CLOUD) {
-        addLog('INFO', 'Secure handshake completed. TLS 1.3 encryption active.');
-      }
-    }, 1500);
-  };
-
-  const handleDisconnect = () => {
-    setConfig(null);
-    setHistory([]);
-    setLogs([]);
-    setViewMode('DASHBOARD');
-  };
 
   const addLog = (level: 'INFO' | 'WARN' | 'ERROR', message: string) => {
     const newLog: LogEntry = {
@@ -84,6 +65,47 @@ const App: React.FC = () => {
       message
     };
     setLogs(prev => [...prev, newLog]);
+  };
+
+  // Connection Handler
+  const handleConnect = (newConfig: ConnectionConfig) => {
+    setIsConnecting(true);
+    
+    // Simulate a system boot sequence in the logs
+    setTimeout(() => {
+      // Clear old logs for a fresh terminal look
+      setLogs([]); 
+      
+      const bootSequence = [
+        { delay: 100, level: 'INFO', msg: `Initializing connection via ${newConfig.type}...` },
+        { delay: 400, level: 'INFO', msg: `Resolving host ${newConfig.address}... OK` },
+        { delay: 800, level: 'INFO', msg: 'Loading system configuration profiles...' },
+        { delay: 1000, level: 'INFO', msg: 'Verifying security certificates... VALID' },
+        { delay: 1200, level: 'INFO', msg: 'Connecting to telemetry stream (Port 8080)...' },
+        { delay: 1400, level: 'INFO', msg: 'Dashboard modules loaded successfully.' },
+        { delay: 1500, level: 'INFO', msg: `System Online. Latency: 12ms.` }
+      ];
+
+      // Execute boot sequence logs
+      bootSequence.forEach(step => {
+        setTimeout(() => {
+           addLog(step.level as any, step.msg);
+        }, step.delay);
+      });
+
+      // Finalize connection state
+      setTimeout(() => {
+        setConfig(newConfig);
+        setIsConnecting(false);
+      }, 1600);
+
+    }, 500);
+  };
+
+  const handleDisconnect = () => {
+    setConfig(null);
+    setViewMode('DASHBOARD');
+    setLogs(MOCK_LOGS); // Reset to mock logs for the login screen background if needed
   };
 
   // Simulation Loop
@@ -111,7 +133,8 @@ const App: React.FC = () => {
            const warnings = [
              "HVAC compressor cycle extended",
              "Packet loss detected on Zone C",
-             "Slight voltage fluctuation detected"
+             "Slight voltage fluctuation detected",
+             "Optimizing database query cache..."
            ];
            addLog('WARN', warnings[Math.floor(Math.random() * warnings.length)]);
         }

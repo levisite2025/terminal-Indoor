@@ -65,7 +65,7 @@ const Dashboard: React.FC<DashboardProps> = ({ metricsHistory, currentMetric, lo
     if (scrollRef.current) {
       scrollRef.current.scrollTop = scrollRef.current.scrollHeight;
     }
-  }, [filteredLogs]); // Scroll when filtered list changes (new logs or filter change)
+  }, [filteredLogs, logs]); 
 
   const handleRunAnalysis = async () => {
     setIsAnalyzing(true);
@@ -158,7 +158,7 @@ const Dashboard: React.FC<DashboardProps> = ({ metricsHistory, currentMetric, lo
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
             
             {/* Chart Section */}
-            <div className="lg:col-span-2 bg-slate-900 border border-slate-800 rounded-xl p-6 shadow-lg">
+            <div className="lg:col-span-2 bg-slate-900 border border-slate-800 rounded-xl p-6 shadow-lg min-h-[350px]">
               <div className="flex items-center justify-between mb-6">
                 <h2 className="text-lg font-semibold text-white flex items-center gap-2">
                   <Activity size={20} className="text-slate-400" />
@@ -174,51 +174,57 @@ const Dashboard: React.FC<DashboardProps> = ({ metricsHistory, currentMetric, lo
                 </div>
               </div>
               <div className="h-[300px] w-full">
-                <ResponsiveContainer width="100%" height="100%">
-                  <AreaChart data={metricsHistory}>
-                    <defs>
-                      <linearGradient id="colorTemp" x1="0" y1="0" x2="0" y2="1">
-                        <stop offset="5%" stopColor="#f97316" stopOpacity={0.3}/>
-                        <stop offset="95%" stopColor="#f97316" stopOpacity={0}/>
-                      </linearGradient>
-                      <linearGradient id="colorHum" x1="0" y1="0" x2="0" y2="1">
-                        <stop offset="5%" stopColor="#06b6d4" stopOpacity={0.3}/>
-                        <stop offset="95%" stopColor="#06b6d4" stopOpacity={0}/>
-                      </linearGradient>
-                    </defs>
-                    <CartesianGrid strokeDasharray="3 3" stroke="#334155" vertical={false} />
-                    <XAxis 
-                      dataKey="timestamp" 
-                      tickFormatter={formatTime} 
-                      stroke="#64748b" 
-                      fontSize={12} 
-                      tickMargin={10}
-                    />
-                    <YAxis stroke="#64748b" fontSize={12} domain={['auto', 'auto']} />
-                    <Tooltip 
-                      contentStyle={{ backgroundColor: '#1e293b', borderColor: '#334155', color: '#f8fafc' }}
-                      labelFormatter={(label) => formatTime(label)}
-                    />
-                    <Area 
-                      type="monotone" 
-                      dataKey="temperature" 
-                      stroke="#f97316" 
-                      fillOpacity={1} 
-                      fill="url(#colorTemp)" 
-                      strokeWidth={2}
-                      isAnimationActive={false}
-                    />
-                    <Area 
-                      type="monotone" 
-                      dataKey="humidity" 
-                      stroke="#06b6d4" 
-                      fillOpacity={1} 
-                      fill="url(#colorHum)" 
-                      strokeWidth={2}
-                      isAnimationActive={false}
-                    />
-                  </AreaChart>
-                </ResponsiveContainer>
+                {metricsHistory.length > 0 ? (
+                  <ResponsiveContainer width="100%" height="100%">
+                    <AreaChart data={metricsHistory}>
+                      <defs>
+                        <linearGradient id="colorTemp" x1="0" y1="0" x2="0" y2="1">
+                          <stop offset="5%" stopColor="#f97316" stopOpacity={0.3}/>
+                          <stop offset="95%" stopColor="#f97316" stopOpacity={0}/>
+                        </linearGradient>
+                        <linearGradient id="colorHum" x1="0" y1="0" x2="0" y2="1">
+                          <stop offset="5%" stopColor="#06b6d4" stopOpacity={0.3}/>
+                          <stop offset="95%" stopColor="#06b6d4" stopOpacity={0}/>
+                        </linearGradient>
+                      </defs>
+                      <CartesianGrid strokeDasharray="3 3" stroke="#334155" vertical={false} />
+                      <XAxis 
+                        dataKey="timestamp" 
+                        tickFormatter={formatTime} 
+                        stroke="#64748b" 
+                        fontSize={12} 
+                        tickMargin={10}
+                      />
+                      <YAxis stroke="#64748b" fontSize={12} domain={['auto', 'auto']} />
+                      <Tooltip 
+                        contentStyle={{ backgroundColor: '#1e293b', borderColor: '#334155', color: '#f8fafc' }}
+                        labelFormatter={(label) => formatTime(label)}
+                      />
+                      <Area 
+                        type="monotone" 
+                        dataKey="temperature" 
+                        stroke="#f97316" 
+                        fillOpacity={1} 
+                        fill="url(#colorTemp)" 
+                        strokeWidth={2}
+                        isAnimationActive={false}
+                      />
+                      <Area 
+                        type="monotone" 
+                        dataKey="humidity" 
+                        stroke="#06b6d4" 
+                        fillOpacity={1} 
+                        fill="url(#colorHum)" 
+                        strokeWidth={2}
+                        isAnimationActive={false}
+                      />
+                    </AreaChart>
+                  </ResponsiveContainer>
+                ) : (
+                  <div className="h-full flex items-center justify-center text-slate-500">
+                    Loading telemetry data...
+                  </div>
+                )}
               </div>
             </div>
 
@@ -238,7 +244,7 @@ const Dashboard: React.FC<DashboardProps> = ({ metricsHistory, currentMetric, lo
                 </button>
               </div>
 
-              <div className="flex-1 bg-slate-950/50 rounded-lg border border-slate-800 p-4 overflow-y-auto">
+              <div className="flex-1 bg-slate-950/50 rounded-lg border border-slate-800 p-4 overflow-y-auto min-h-[250px]">
                 {!aiAnalysis ? (
                   <div className="h-full flex flex-col items-center justify-center text-slate-500 text-sm text-center">
                     <Cpu size={32} className="mb-2 opacity-20" />
@@ -319,14 +325,14 @@ const Dashboard: React.FC<DashboardProps> = ({ metricsHistory, currentMetric, lo
               </div>
 
               <div 
-                className="flex-1 bg-black rounded-lg border border-slate-800 p-4 font-mono text-sm relative overflow-hidden flex flex-col"
+                className="flex-1 bg-black rounded-lg border border-slate-800 p-4 font-mono text-sm relative overflow-hidden flex flex-col min-h-[240px]"
                 style={{ height: '240px' }}
               >
                 <div ref={scrollRef} className="overflow-y-auto flex-1 scrollbar-thin pr-2">
                    {filteredLogs.length > 0 ? (
                      filteredLogs.map((log) => (
                        <div key={log.id} className="mb-1.5 flex items-start group hover:bg-slate-900/30 -mx-2 px-2 rounded">
-                          <span className="text-slate-600 mr-3 select-none shrink-0 text-[11px] pt-0.5">
+                          <span className="text-slate-600 mr-3 select-none shrink-0 text-[11px] pt-0.5 w-[70px] text-right">
                             {formatTime(log.timestamp)}
                           </span>
                           <div className="flex items-center gap-2 flex-wrap">
@@ -349,12 +355,11 @@ const Dashboard: React.FC<DashboardProps> = ({ metricsHistory, currentMetric, lo
                      ))
                    ) : (
                      <div className="h-full flex items-center justify-center text-slate-700 italic text-xs">
-                       No logs found matching filter criteria.
+                       {logs.length === 0 ? "Awaiting system output..." : "No logs found matching filter."}
                      </div>
                    )}
-                   <div className="flex items-center text-slate-500 animate-pulse mt-2">
-                     <ChevronRight size={14} />
-                     <span className="ml-2 w-2 h-4 bg-slate-500 block"></span>
+                   <div className="flex items-center text-slate-500 animate-pulse mt-2 pl-[85px]">
+                     <span className="w-2 h-4 bg-slate-500 block"></span>
                    </div>
                 </div>
               </div>
