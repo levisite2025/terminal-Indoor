@@ -1,19 +1,30 @@
 import { GoogleGenAI, Type } from "@google/genai";
 import { SystemMetrics, AISystemAnalysis } from '../types';
 
+// LEVI STRUCTURE: Safe Environment Accessor
+// This prevents "ReferenceError: process is not defined" in Chrome/Edge
+const getSafeApiKey = (): string | undefined => {
+  try {
+    // 1. Check window.process (Polyfill)
+    if (typeof window !== 'undefined' && (window as any).process?.env?.API_KEY) {
+      return (window as any).process.env.API_KEY;
+    }
+    // 2. Check global process (Node/Build time)
+    if (typeof process !== 'undefined' && process.env?.API_KEY) {
+      return process.env.API_KEY;
+    }
+  } catch (e) {
+    // Silently fail safely
+    return undefined;
+  }
+  return undefined;
+};
+
 const getAiClient = () => {
-  // CRITICAL FIX: Safe access for process.env in browser environments
-  // Chrome 142+ and other strict environments will crash if 'process' is accessed directly without a shim.
-  
-  // We check if 'process' is defined on window (from our polyfill) or globally
-  const env = (typeof window !== 'undefined' && (window as any).process?.env) 
-              ? (window as any).process.env 
-              : (typeof process !== 'undefined' ? process.env : {});
-              
-  const apiKey = env.API_KEY;
+  const apiKey = getSafeApiKey();
   
   if (!apiKey) {
-    console.warn("API_KEY is missing. Using fallback mock service.");
+    console.warn("[System] API_KEY missing. Using simulation mode.");
     return null;
   }
   return new GoogleGenAI({ apiKey });

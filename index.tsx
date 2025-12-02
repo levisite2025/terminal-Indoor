@@ -17,12 +17,16 @@ interface ErrorBoundaryState {
   error: Error | null;
 }
 
-// Error Boundary to prevent "Black Screen of Death"
+// LEVI STRUCTURE: Robust Error Boundary
+// Prevents "White/Black Screen of Death" by catching render phase errors
 class ErrorBoundary extends React.Component<ErrorBoundaryProps, ErrorBoundaryState> {
-  public state: ErrorBoundaryState = { hasError: false, error: null };
-
+  // Initialize state via constructor for better TS compatibility
   constructor(props: ErrorBoundaryProps) {
     super(props);
+    this.state = { 
+      hasError: false, 
+      error: null 
+    };
   }
 
   static getDerivedStateFromError(error: Error): ErrorBoundaryState {
@@ -30,63 +34,43 @@ class ErrorBoundary extends React.Component<ErrorBoundaryProps, ErrorBoundarySta
   }
 
   componentDidCatch(error: Error, errorInfo: React.ErrorInfo) {
+    // Log to our polyfilled console
     console.error("Critical Application Error:", error, errorInfo);
   }
 
   render() {
     if (this.state.hasError) {
       return (
-        <div style={{
-          height: '100vh',
-          width: '100vw',
-          backgroundColor: '#0f172a',
-          color: '#f8fafc',
-          display: 'flex',
-          flexDirection: 'column',
-          alignItems: 'center',
-          justifyContent: 'center',
-          fontFamily: 'Segoe UI, sans-serif',
-          padding: '2rem'
-        }}>
-          <div style={{ color: '#ef4444', marginBottom: '1rem' }}>
-             <svg width="64" height="64" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-               <path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"></path>
-               <line x1="12" y1="9" x2="12" y2="13"></line>
-               <line x1="12" y1="17" x2="12.01" y2="17"></line>
-             </svg>
+        <div className="min-h-screen w-full bg-slate-950 text-slate-200 flex flex-col items-center justify-center p-8 font-sans select-none">
+          <div className="bg-slate-900 border border-red-900/50 p-8 rounded-xl shadow-2xl max-w-lg w-full text-center">
+             <div className="mx-auto w-16 h-16 bg-red-900/20 rounded-full flex items-center justify-center mb-6">
+                <AlertTriangle size={32} className="text-red-500" />
+             </div>
+             
+             <h1 className="text-xl font-bold text-white mb-2">System Runtime Error</h1>
+             <p className="text-slate-400 text-sm mb-6">
+               The application encountered an unexpected state and has halted to prevent data corruption.
+             </p>
+             
+             <div className="bg-black/50 rounded p-4 text-left mb-6 overflow-auto max-h-32 border border-slate-800">
+               <code className="text-xs font-mono text-red-300 block">
+                 {this.state.error?.message || 'Unknown Error'}
+               </code>
+               <code className="text-[10px] font-mono text-slate-600 block mt-2">
+                 Error Code: 0xCRITICAL_RENDER_FAIL
+               </code>
+             </div>
+             
+             <button 
+               onClick={() => window.location.reload()}
+               className="w-full py-3 bg-blue-600 hover:bg-blue-500 text-white font-semibold rounded-lg transition-colors shadow-lg shadow-blue-900/20"
+             >
+               Reboot System
+             </button>
           </div>
-          <h1 style={{ fontSize: '1.5rem', fontWeight: 'bold', marginBottom: '1rem' }}>System Initialization Failed</h1>
-          <p style={{ color: '#94a3b8', marginBottom: '2rem', textAlign: 'center', maxWidth: '500px' }}>
-            The application encountered a critical error during startup.
-          </p>
-          <div style={{ 
-            backgroundColor: '#1e293b', 
-            padding: '1rem', 
-            borderRadius: '0.5rem', 
-            fontFamily: 'monospace', 
-            fontSize: '0.875rem', 
-            color: '#fca5a5',
-            maxWidth: '100%',
-            overflow: 'auto',
-            maxHeight: '200px'
-          }}>
-            {this.state.error?.message || 'Unknown Error'}
+          <div className="mt-8 text-xs text-slate-600 font-mono">
+            Running in Safety Mode • Chrome/Edge Compatible
           </div>
-          <button 
-            onClick={() => window.location.reload()}
-            style={{
-              marginTop: '2rem',
-              padding: '0.75rem 1.5rem',
-              backgroundColor: '#3b82f6',
-              color: 'white',
-              border: 'none',
-              borderRadius: '0.375rem',
-              cursor: 'pointer',
-              fontWeight: '600'
-            }}
-          >
-            Reboot System
-          </button>
         </div>
       );
     }

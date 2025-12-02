@@ -2,29 +2,41 @@
 <html lang="en" class="h-full">
   <head>
     <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
     <meta name="theme-color" content="#0f172a" />
+    <meta name="apple-mobile-web-app-capable" content="yes" />
+    <meta name="mobile-web-app-capable" content="yes" />
     
-    <!-- Permissions Policy -->
+    <!-- Permissions Policy for Hardware Access -->
     <meta http-equiv="Permissions-Policy" content="autoplay=(self), fullscreen=(self), accelerometer=(), gyroscope=(), magnetometer=()" />
     
     <title>Indoor System Visualizer</title>
     
-    <!-- CRITICAL POLYFILLS FOR CHROME/EDGE -->
+    <!-- LEVI STRUCTURE: CRITICAL BROWSER POLYFILLS -->
+    <!-- Must run before any other script to prevent 'process is not defined' crashes in Chrome/Edge -->
     <script>
-      // Fix for "process is not defined" error in Recharts/GenAI
-      window.process = {
-        env: {
-          NODE_ENV: 'production',
-          API_KEY: '' // Prevent undefined access
+      (function() {
+        // Polyfill global object
+        if (typeof window !== 'undefined') {
+          window.global = window;
         }
-      };
-      // Fix for "global is not defined" in some legacy monitoring libs
-      window.global = window;
+        
+        // Polyfill process object for React libraries (Recharts, GenAI)
+        if (typeof window.process === 'undefined') {
+          window.process = {
+            env: {
+              NODE_ENV: 'production',
+              API_KEY: '' // Placeholder to prevent undefined access
+            },
+            version: '',
+            nextTick: function(cb) { setTimeout(cb, 0); }
+          };
+        }
+      })();
     </script>
 
     <script src="https://cdn.tailwindcss.com"></script>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
     
     <script>
       tailwind.config = {
@@ -32,7 +44,7 @@
           extend: {
             fontFamily: {
               sans: ['Segoe UI', 'Inter', 'Roboto', 'sans-serif'],
-              mono: ['Consolas', 'Monaco', 'Courier New', 'monospace'],
+              mono: ['Consolas', 'JetBrains Mono', 'monospace'],
             },
             colors: {
               slate: {
@@ -48,36 +60,44 @@
     <style>
       html, body, #root {
         height: 100%;
+        width: 100%;
         margin: 0;
         padding: 0;
-        overflow: hidden;
+        overflow: hidden; /* Prevent body scroll, handle internally */
       }
+      
       body {
         background-color: #0f172a;
         color: #e2e8f0;
+        /* Native App Feel */
         overscroll-behavior: none;
         user-select: none;
+        -webkit-user-select: none;
         cursor: default;
         -webkit-font-smoothing: antialiased;
+        -moz-osx-font-smoothing: grayscale;
       }
       
+      /* Chrome/Edge Scrollbar Styling */
       .scrollbar-thin::-webkit-scrollbar {
-        width: 8px;
-        height: 8px;
+        width: 6px;
+        height: 6px;
       }
       .scrollbar-thin::-webkit-scrollbar-track {
-        background: #0f172a; 
+        background: transparent; 
       }
       .scrollbar-thin::-webkit-scrollbar-thumb {
         background: #334155; 
-        border-radius: 4px;
+        border-radius: 3px;
       }
       .scrollbar-thin::-webkit-scrollbar-thumb:hover {
         background: #475569; 
       }
 
+      /* Allow text selection only in specific areas */
       input, textarea, .selectable-text {
         user-select: text;
+        -webkit-user-select: text;
         cursor: text;
       }
     </style>
