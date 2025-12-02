@@ -68,38 +68,43 @@ const App: React.FC = () => {
   };
 
   // Connection Handler
-  const handleConnect = (newConfig: ConnectionConfig) => {
+  const handleConnect = async (newConfig: ConnectionConfig) => {
     setIsConnecting(true);
     
-    // Simulate a system boot sequence in the logs
-    setTimeout(() => {
-      // Clear old logs for a fresh terminal look
-      setLogs([]); 
-      
-      const bootSequence = [
-        { delay: 100, level: 'INFO', msg: `Initializing connection via ${newConfig.type}...` },
-        { delay: 400, level: 'INFO', msg: `Resolving host ${newConfig.address}... OK` },
-        { delay: 800, level: 'INFO', msg: 'Loading system configuration profiles...' },
-        { delay: 1000, level: 'INFO', msg: 'Verifying security certificates... VALID' },
-        { delay: 1200, level: 'INFO', msg: 'Connecting to telemetry stream (Port 8080)...' },
-        { delay: 1400, level: 'INFO', msg: 'Dashboard modules loaded successfully.' },
-        { delay: 1500, level: 'INFO', msg: `System Online. Latency: 12ms.` }
-      ];
+    // Clear old logs for a fresh terminal look
+    setLogs([]);
+    
+    const sleep = (ms: number) => new Promise(r => setTimeout(r, ms));
 
-      // Execute boot sequence logs
-      bootSequence.forEach(step => {
-        setTimeout(() => {
-           addLog(step.level as any, step.msg);
-        }, step.delay);
-      });
+    // Simulated Boot Sequence
+    addLog('INFO', `Initializing connection via ${newConfig.type}...`);
+    await sleep(400);
+    
+    addLog('INFO', `Resolving host ${newConfig.address}... OK`);
+    await sleep(400);
 
-      // Finalize connection state
-      setTimeout(() => {
-        setConfig(newConfig);
-        setIsConnecting(false);
-      }, 1600);
+    addLog('INFO', 'Loading system configuration profiles...');
+    await sleep(300);
 
-    }, 500);
+    addLog('INFO', 'Verifying security certificates... VALID');
+    await sleep(300);
+
+    if (newConfig.type === ConnectionType.CLOUD) {
+       addLog('INFO', 'Establishing secure TLS 1.3 tunnel...');
+       await sleep(400);
+    } else {
+       addLog('INFO', `Connecting to telemetry stream (Port ${newConfig.port || 8080})...`);
+       await sleep(400);
+    }
+
+    addLog('INFO', 'Dashboard modules loaded successfully.');
+    await sleep(200);
+
+    addLog('INFO', `System Online. Latency: ${Math.floor(Math.random() * 20 + 5)}ms.`);
+    await sleep(400);
+
+    setConfig(newConfig);
+    setIsConnecting(false);
   };
 
   const handleDisconnect = () => {

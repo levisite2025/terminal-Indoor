@@ -1,4 +1,4 @@
-import { ConnectionType, AdContent } from './types';
+import { ConnectionType, AdContent, LogEntry } from './types';
 
 export const DEFAULT_CONFIG = {
   type: ConnectionType.LAN,
@@ -6,7 +6,7 @@ export const DEFAULT_CONFIG = {
   port: '8080'
 };
 
-export const MOCK_LOGS = [
+export const MOCK_LOGS: LogEntry[] = [
   { id: '1', timestamp: Date.now() - 100000, level: 'INFO', message: 'System initialized successfully.' },
   { id: '2', timestamp: Date.now() - 80000, level: 'INFO', message: 'Connected to HVAC controller.' },
   { id: '3', timestamp: Date.now() - 60000, level: 'WARN', message: 'Latency detected on Sensor Node 4.' },

@@ -1,6 +1,6 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { ConnectionConfig, ConnectionType } from '../types';
-import { ShieldCheck, Globe, Wifi, Lock, MonitorDown } from 'lucide-react';
+import { ShieldCheck, Globe, Wifi, Lock, MonitorDown, CheckCircle } from 'lucide-react';
 
 interface ConnectionPanelProps {
   onConnect: (config: ConnectionConfig) => void;
@@ -9,29 +9,48 @@ interface ConnectionPanelProps {
 
 const ConnectionPanel: React.FC<ConnectionPanelProps> = ({ onConnect, isConnecting }) => {
   const [type, setType] = useState<ConnectionType>(ConnectionType.LAN);
-  const [address, setAddress] = useState('');
+  const [address, setAddress] = useState('192.168.1.100');
   const [port, setPort] = useState('8080');
   const [downloading, setDownloading] = useState(false);
+
+  // Smart default switching
+  useEffect(() => {
+    if (type === ConnectionType.LAN) {
+      if (address.includes('sys-viewer')) setAddress('192.168.1.100');
+    } else {
+      if (address.includes('192.168')) setAddress('https://sys-viewer.app/remote/login');
+    }
+  }, [type]);
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     onConnect({ 
       type, 
-      address, 
+      address: address || (type === ConnectionType.LAN ? '192.168.1.100' : 'https://sys-viewer.app/remote/login'), 
       port: type === ConnectionType.LAN ? port : undefined
     });
   };
 
   const handleDownloadSim = () => {
     setDownloading(true);
+    
+    // Create a dummy file to make the download feel real
+    const blob = new Blob(["[System Installer]\nVersion=1.0.4\nPlatform=Windows x64\n\nThis is a simulation file. In a real deployment, this would be the binary executable."], { type: 'text/plain' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = "Setup_IndoorSys_v1.0.txt"; // Using .txt to avoid browser security warnings in preview
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+
     setTimeout(() => {
-        alert("Setup_IndoorSys_v1.0.exe downloaded to your computer.");
         setDownloading(false);
-    }, 1500);
+    }, 2000);
   };
 
   return (
-    <div className="flex flex-col items-center justify-center min-h-screen bg-slate-950 p-4">
+    <div className="flex flex-col items-center justify-center min-h-screen bg-slate-950 p-4 font-sans select-none">
       <div className="w-full max-w-md bg-slate-900 border border-slate-800 rounded-xl shadow-2xl overflow-hidden relative">
         {/* Decorative background glow */}
         <div className="absolute top-0 left-1/2 -translate-x-1/2 w-full h-2 bg-gradient-to-r from-blue-500 via-purple-500 to-blue-500"></div>
@@ -42,15 +61,18 @@ const ConnectionPanel: React.FC<ConnectionPanelProps> = ({ onConnect, isConnecti
           </div>
           <h1 className="text-2xl font-bold text-white tracking-tight">System Access</h1>
           <p className="text-slate-400 text-sm mt-2">Indoor Environment Monitoring Unit</p>
-          <div className="mt-2 flex justify-center">
-            <span className="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-slate-700 text-slate-300">
-              Verified for Chrome & Edge
-            </span>
+          
+          {/* Browser Compatibility Badge */}
+          <div className="mt-3 flex justify-center">
+            <div className="flex items-center gap-1.5 px-3 py-1 rounded-full bg-slate-950/80 border border-slate-700/50 text-[10px] font-medium text-emerald-400 shadow-sm">
+              <CheckCircle size={10} />
+              <span>Verified for Chrome & Edge</span>
+            </div>
           </div>
         </div>
 
         <div className="p-8 pb-4">
-          <form onSubmit={handleSubmit} className="space-y-6" noValidate>
+          <form onSubmit={handleSubmit} className="space-y-6" noValidate autoComplete="off">
             
             {/* Connection Type Tabs */}
             <div className="grid grid-cols-2 gap-2 p-1 bg-slate-950 rounded-lg border border-slate-800">
@@ -139,7 +161,7 @@ const ConnectionPanel: React.FC<ConnectionPanelProps> = ({ onConnect, isConnecti
                     <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
                     <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
                   </svg>
-                  Connecting...
+                  Establishing Connection...
                 </span>
               ) : (
                 'Connect to System'

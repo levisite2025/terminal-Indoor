@@ -23,11 +23,11 @@ const StatCard: React.FC<{
 }> = ({ title, value, unit, icon, trend, color }) => (
   <div className="bg-slate-900 border border-slate-800 rounded-xl p-5 shadow-lg relative overflow-hidden group">
     <div className={`absolute top-0 right-0 p-4 opacity-10 group-hover:opacity-20 transition-opacity ${color}`}>
-      {React.cloneElement(icon as React.ReactElement, { size: 64 })}
+      {React.cloneElement(icon as React.ReactElement<any>, { size: 64 })}
     </div>
     <div className="flex items-center gap-3 mb-2">
       <div className={`p-2 rounded-lg bg-opacity-10 ${color} bg-white`}>
-        {React.cloneElement(icon as React.ReactElement, { size: 20, className: color.replace('bg-', 'text-') })}
+        {React.cloneElement(icon as React.ReactElement<any>, { size: 20, className: color.replace('bg-', 'text-') })}
       </div>
       <span className="text-slate-400 text-sm font-medium uppercase tracking-wide">{title}</span>
     </div>
