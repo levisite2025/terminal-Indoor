@@ -42,10 +42,15 @@ const ConnectionPanel: React.FC<ConnectionPanelProps> = ({ onConnect, isConnecti
           </div>
           <h1 className="text-2xl font-bold text-white tracking-tight">System Access</h1>
           <p className="text-slate-400 text-sm mt-2">Indoor Environment Monitoring Unit</p>
+          <div className="mt-2 flex justify-center">
+            <span className="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-slate-700 text-slate-300">
+              Verified for Chrome & Edge
+            </span>
+          </div>
         </div>
 
         <div className="p-8 pb-4">
-          <form onSubmit={handleSubmit} className="space-y-6">
+          <form onSubmit={handleSubmit} className="space-y-6" noValidate>
             
             {/* Connection Type Tabs */}
             <div className="grid grid-cols-2 gap-2 p-1 bg-slate-950 rounded-lg border border-slate-800">

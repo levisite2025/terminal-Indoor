@@ -4,7 +4,6 @@ import Dashboard from './components/Dashboard';
 import AdPlayer from './components/AdPlayer';
 import { ConnectionConfig, SystemMetrics, LogEntry, ConnectionType } from './types';
 import { MOCK_LOGS, MOCK_ADS } from './constants';
-import { v4 as uuidv4 } from 'uuid'; 
 
 const generateRandomMetric = (prev: SystemMetrics): SystemMetrics => {
   const newTemp = prev.temperature + (Math.random() - 0.5) * 0.5;
