@@ -20,13 +20,18 @@ interface ErrorBoundaryState {
 // LEVI STRUCTURE: Robust Error Boundary
 // Prevents "White/Black Screen of Death" by catching render phase errors
 class ErrorBoundary extends React.Component<ErrorBoundaryProps, ErrorBoundaryState> {
-  // Initialize state via constructor for better TS compatibility
+  // Initialize state via class property for better TS compatibility
+  public state: ErrorBoundaryState = { 
+    hasError: false, 
+    error: null 
+  };
+  
+  // Explicitly declare props to fix "Property 'props' does not exist" error
+  public props: ErrorBoundaryProps;
+
   constructor(props: ErrorBoundaryProps) {
     super(props);
-    this.state = { 
-      hasError: false, 
-      error: null 
-    };
+    this.props = props;
   }
 
   static getDerivedStateFromError(error: Error): ErrorBoundaryState {

@@ -2,6 +2,7 @@
 <html lang="en" class="h-full">
   <head>
     <meta charset="UTF-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
     <meta name="theme-color" content="#0f172a" />
     <meta name="apple-mobile-web-app-capable" content="yes" />
@@ -12,26 +13,41 @@
     
     <title>Indoor System Visualizer</title>
     
-    <!-- LEVI STRUCTURE: CRITICAL BROWSER POLYFILLS -->
-    <!-- Must run before any other script to prevent 'process is not defined' crashes in Chrome/Edge -->
+    <!-- SYSTEM EXTENSIONS: BROWSER COMPATIBILITY LAYER -->
+    <!-- Essential Polyfills to run Node.js-based libraries in Chrome/Edge -->
     <script>
       (function() {
-        // Polyfill global object
+        console.log("[System] Initializing Environment Shims...");
+        
+        // 1. Global Scope Polyfill
         if (typeof window !== 'undefined') {
           window.global = window;
         }
         
-        // Polyfill process object for React libraries (Recharts, GenAI)
-        if (typeof window.process === 'undefined') {
-          window.process = {
-            env: {
-              NODE_ENV: 'production',
-              API_KEY: '' // Placeholder to prevent undefined access
-            },
-            version: '',
-            nextTick: function(cb) { setTimeout(cb, 0); }
+        // 2. Process Environment Polyfill (Critical for React/GenAI)
+        window.process = window.process || {
+          env: { NODE_ENV: 'production', API_KEY: '' },
+          version: 'v16.0.0',
+          versions: { node: '16.0.0' },
+          platform: 'browser',
+          nextTick: function(cb) { setTimeout(cb, 0); },
+          cwd: function() { return '/'; }
+        };
+
+        // 3. Buffer Polyfill (Minimal implementation to satisfy dependencies)
+        if (!window.Buffer) {
+          window.Buffer = {
+            isBuffer: function() { return false; },
+            from: function(data) { return data; },
+            alloc: function(size) { return new Uint8Array(size); }
           };
         }
+
+        // 4. Module System Shims (For UMD/CommonJS interoperability)
+        window.exports = window.exports || {};
+        window.module = window.module || { exports: window.exports };
+        
+        console.log("[System] Shims active. Ready to boot.");
       })();
     </script>
 
@@ -110,6 +126,8 @@
     "react": "https://aistudiocdn.com/react@^19.2.0",
     "@google/genai": "https://aistudiocdn.com/@google/genai@^1.30.0",
     "recharts": "https://aistudiocdn.com/recharts@^3.5.1",
+    "prop-types": "https://esm.sh/prop-types@15.8.1",
+    "react-is": "https://esm.sh/react-is@18.2.0",
     "react/": "https://aistudiocdn.com/react@^19.2.0/",
     "react-dom/": "https://aistudiocdn.com/react-dom@^19.2.0/"
   }

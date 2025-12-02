@@ -21,13 +21,25 @@ const getSafeApiKey = (): string | undefined => {
 };
 
 const getAiClient = () => {
-  const apiKey = getSafeApiKey();
-  
-  if (!apiKey) {
-    console.warn("[System] API_KEY missing. Using simulation mode.");
+  try {
+    const apiKey = getSafeApiKey();
+    
+    if (!apiKey) {
+      console.warn("[System] API_KEY missing. Using simulation mode.");
+      return null;
+    }
+    
+    // Safety check for GoogleGenAI class existence
+    if (typeof GoogleGenAI === 'undefined') {
+        console.error("[System] GoogleGenAI library not loaded properly.");
+        return null;
+    }
+
+    return new GoogleGenAI({ apiKey });
+  } catch (e) {
+    console.error("[System] Failed to initialize AI Client:", e);
     return null;
   }
-  return new GoogleGenAI({ apiKey });
 };
 
 // Fallback data for when API is unavailable or Key is missing

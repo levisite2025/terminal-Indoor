@@ -27,6 +27,11 @@ const generateRandomMetric = (prev: SystemMetrics): SystemMetrics => {
 };
 
 const App: React.FC = () => {
+  // Debug log to verify App is mounting
+  useEffect(() => {
+    console.log("[System] App Component Mounted.");
+  }, []);
+
   const [config, setConfig] = useState<ConnectionConfig | null>(null);
   const [isConnecting, setIsConnecting] = useState(false);
   const [viewMode, setViewMode] = useState<'DASHBOARD' | 'ADS'>('DASHBOARD');
@@ -76,31 +81,34 @@ const App: React.FC = () => {
     
     const sleep = (ms: number) => new Promise(r => setTimeout(r, ms));
 
-    // Simulated Boot Sequence
-    addLog('INFO', `Initializing connection via ${newConfig.type}...`);
-    await sleep(400);
+    // Simulated Boot Sequence (Python/Flask style)
+    addLog('INFO', '> python manage.py runserver 0.0.0.0:8000');
+    await sleep(300);
     
-    addLog('INFO', `Resolving host ${newConfig.address}... OK`);
-    await sleep(400);
-
-    addLog('INFO', 'Loading system configuration profiles...');
+    addLog('INFO', 'Watching for file changes with StatReloader');
     await sleep(300);
 
-    addLog('INFO', 'Verifying security certificates... VALID');
+    addLog('INFO', 'Performing system checks...');
+    await sleep(200);
+
+    addLog('INFO', 'System check identified no issues (0 silenced).');
     await sleep(300);
 
     if (newConfig.type === ConnectionType.CLOUD) {
-       addLog('INFO', 'Establishing secure TLS 1.3 tunnel...');
+       addLog('INFO', 'Django version 4.2.7, using settings "core.settings.prod"');
+       addLog('INFO', 'Starting ASGI/Daphne server at https://sys-viewer.app/');
        await sleep(400);
+       addLog('INFO', 'TLS 1.3 Handshake successful.');
     } else {
-       addLog('INFO', `Connecting to telemetry stream (Port ${newConfig.port || 8080})...`);
+       addLog('INFO', `Flask server running on http://${newConfig.address}:${newConfig.port || 8080}`);
+       addLog('INFO', 'Environment: Production');
        await sleep(400);
     }
 
-    addLog('INFO', 'Dashboard modules loaded successfully.');
+    addLog('INFO', 'Worker initialized. Telemetry stream active.');
     await sleep(200);
 
-    addLog('INFO', `System Online. Latency: ${Math.floor(Math.random() * 20 + 5)}ms.`);
+    addLog('INFO', 'Quit the server with CONTROL-C.');
     await sleep(400);
 
     setConfig(newConfig);
@@ -136,12 +144,13 @@ const App: React.FC = () => {
         // Occasional Random System Logs
         if (Math.random() > 0.98) {
            const warnings = [
-             "HVAC compressor cycle extended",
+             "GET /api/v1/telemetry/hvac 200 OK",
+             "POST /api/v1/sync/nodes 201 Created",
              "Packet loss detected on Zone C",
-             "Slight voltage fluctuation detected",
-             "Optimizing database query cache..."
+             "Optimizing database query cache...",
+             "[WS] Heartbeat received from Node-04"
            ];
-           addLog('WARN', warnings[Math.floor(Math.random() * warnings.length)]);
+           addLog('INFO', warnings[Math.floor(Math.random() * warnings.length)]);
         }
 
         return next;
