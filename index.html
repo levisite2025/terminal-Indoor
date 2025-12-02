@@ -5,15 +5,29 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <!-- Integration with Chrome/Edge Window Color -->
     <meta name="theme-color" content="#0f172a" />
+    
+    <!-- Permissions Policy to allow autoplay and hardware access -->
+    <meta http-equiv="Permissions-Policy" content="autoplay=(self), fullscreen=(self), accelerometer=(), gyroscope=(), magnetometer=()" />
+    
     <title>Indoor System Visualizer</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    
+    <!-- CRITICAL FIX: Polyfill 'process' for browser environments. 
+         Libraries like Recharts or React often crash without this in pure ESM. -->
+    <script>
+      window.process = {
+        env: {
+          NODE_ENV: 'production'
+        }
+      };
+    </script>
+
     <script>
       tailwind.config = {
         theme: {
           extend: {
             fontFamily: {
-              // Added 'Segoe UI' for native Windows font rendering
               sans: ['Segoe UI', 'Inter', 'Roboto', 'sans-serif'],
               mono: ['Consolas', 'Monaco', 'Courier New', 'monospace'],
             },
@@ -33,19 +47,17 @@
         height: 100%;
         margin: 0;
         padding: 0;
-        overflow: hidden; /* Prevent body scroll, handle in app components */
+        overflow: hidden;
       }
       body {
         background-color: #0f172a;
         color: #e2e8f0;
-        /* Prevents browser 'bounce' effect on scroll end */
         overscroll-behavior: none;
-        /* Disable selection for app-like feel */
         user-select: none;
         cursor: default;
+        -webkit-font-smoothing: antialiased;
       }
       
-      /* Webkit Scrollbar Styling (Chrome/Edge/Safari) */
       .scrollbar-thin::-webkit-scrollbar {
         width: 8px;
         height: 8px;
@@ -61,7 +73,6 @@
         background: #475569; 
       }
 
-      /* Input fields should allow selection */
       input, textarea, .selectable-text {
         user-select: text;
         cursor: text;
@@ -70,12 +81,14 @@
   <script type="importmap">
 {
   "imports": {
-    "react-dom/": "https://aistudiocdn.com/react-dom@^19.2.0/",
+    "react-dom/client": "https://aistudiocdn.com/react-dom@^19.2.0/client",
+    "react-dom": "https://aistudiocdn.com/react-dom@^19.2.0",
     "lucide-react": "https://aistudiocdn.com/lucide-react@^0.555.0",
-    "react/": "https://aistudiocdn.com/react@^19.2.0/",
     "react": "https://aistudiocdn.com/react@^19.2.0",
     "@google/genai": "https://aistudiocdn.com/@google/genai@^1.30.0",
-    "recharts": "https://aistudiocdn.com/recharts@^3.5.1"
+    "recharts": "https://aistudiocdn.com/recharts@^3.5.1",
+    "react/": "https://aistudiocdn.com/react@^19.2.0/",
+    "react-dom/": "https://aistudiocdn.com/react-dom@^19.2.0/"
   }
 }
 </script>
