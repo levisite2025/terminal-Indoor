@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { ConnectionConfig, ConnectionType } from '../types';
-import { ShieldCheck, Globe, Wifi, Lock, Key, MonitorDown } from 'lucide-react';
+import { ShieldCheck, Globe, Wifi, Lock, MonitorDown } from 'lucide-react';
 
 interface ConnectionPanelProps {
   onConnect: (config: ConnectionConfig) => void;
@@ -11,7 +11,6 @@ const ConnectionPanel: React.FC<ConnectionPanelProps> = ({ onConnect, isConnecti
   const [type, setType] = useState<ConnectionType>(ConnectionType.LAN);
   const [address, setAddress] = useState('');
   const [port, setPort] = useState('8080');
-  const [apiKey, setApiKey] = useState('');
   const [downloading, setDownloading] = useState(false);
 
   const handleSubmit = (e: React.FormEvent) => {
@@ -19,8 +18,7 @@ const ConnectionPanel: React.FC<ConnectionPanelProps> = ({ onConnect, isConnecti
     onConnect({ 
       type, 
       address, 
-      port: type === ConnectionType.LAN ? port : undefined,
-      apiKey: type === ConnectionType.CLOUD ? apiKey : undefined
+      port: type === ConnectionType.LAN ? port : undefined
     });
   };
 
@@ -117,30 +115,6 @@ const ConnectionPanel: React.FC<ConnectionPanelProps> = ({ onConnect, isConnecti
                   />
                 </div>
               )}
-
-              {type === ConnectionType.CLOUD && (
-                <div className="animate-in fade-in slide-in-from-top-2 duration-300">
-                  <label className="flex items-center gap-1.5 text-xs uppercase tracking-wider text-slate-500 mb-1.5 font-semibold">
-                     <Key size={12} /> Access Token
-                  </label>
-                  <div className="relative group">
-                    <input
-                      type="password"
-                      required
-                      placeholder="••••••••••••••••"
-                      value={apiKey}
-                      onChange={(e) => setApiKey(e.target.value)}
-                      className="w-full bg-slate-950 border border-slate-700 text-white rounded-lg px-4 py-3 pl-10 focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent transition-all placeholder:text-slate-600"
-                    />
-                    <div className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-500 group-focus-within:text-purple-500 transition-colors">
-                      <Key size={16} />
-                    </div>
-                  </div>
-                  <p className="text-[10px] text-slate-500 mt-1.5 flex items-center gap-1">
-                    <Lock size={10} /> End-to-end encrypted connection
-                  </p>
-                </div>
-              )}
             </div>
 
             <button
@@ -160,10 +134,10 @@ const ConnectionPanel: React.FC<ConnectionPanelProps> = ({ onConnect, isConnecti
                     <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
                     <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
                   </svg>
-                  Authenticating...
+                  Connecting...
                 </span>
               ) : (
-                'Establish Secure Connection'
+                'Connect to System'
               )}
             </button>
           </form>

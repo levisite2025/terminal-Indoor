@@ -66,7 +66,6 @@ const App: React.FC = () => {
       addLog('INFO', `Successfully connected to system via ${newConfig.type} (${newConfig.address})`);
       if (newConfig.type === ConnectionType.CLOUD) {
         addLog('INFO', 'Secure handshake completed. TLS 1.3 encryption active.');
-        addLog('INFO', 'User authentication verified via Auth0.');
       }
     }, 1500);
   };
