@@ -1,6 +1,6 @@
 import React, { useEffect, useState, useRef } from 'react';
 import { AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts';
-import { Activity, Thermometer, Droplets, Wind, Zap, Users, AlertTriangle, Cpu, BrainCircuit, Lock, Globe, Shield, PlayCircle, Terminal, ChevronRight } from 'lucide-react';
+import { Activity, Thermometer, Droplets, Wind, Zap, Users, AlertTriangle, Cpu, BrainCircuit, Lock, Globe, Shield, PlayCircle, Terminal, ChevronRight, Search, Filter } from 'lucide-react';
 import { SystemMetrics, LogEntry, AISystemAnalysis, ConnectionConfig, ConnectionType } from '../types';
 import { analyzeSystemMetrics } from '../services/geminiService';
 
@@ -46,14 +46,26 @@ const StatCard: React.FC<{
 const Dashboard: React.FC<DashboardProps> = ({ metricsHistory, currentMetric, logs, config, onDisconnect, onEnterAdMode }) => {
   const [aiAnalysis, setAiAnalysis] = useState<AISystemAnalysis | null>(null);
   const [isAnalyzing, setIsAnalyzing] = useState(false);
+  
+  // Filter states
+  const [logSearchTerm, setLogSearchTerm] = useState('');
+  const [logLevelFilter, setLogLevelFilter] = useState<'ALL' | 'INFO' | 'WARN' | 'ERROR'>('ALL');
+
   const scrollRef = useRef<HTMLDivElement>(null);
+
+  // Derived filtered logs
+  const filteredLogs = logs.filter(log => {
+    const matchesLevel = logLevelFilter === 'ALL' || log.level === logLevelFilter;
+    const matchesSearch = log.message.toLowerCase().includes(logSearchTerm.toLowerCase());
+    return matchesLevel && matchesSearch;
+  });
 
   // Auto-scroll logs
   useEffect(() => {
     if (scrollRef.current) {
       scrollRef.current.scrollTop = scrollRef.current.scrollHeight;
     }
-  }, [logs]);
+  }, [filteredLogs]); // Scroll when filtered list changes (new logs or filter change)
 
   const handleRunAnalysis = async () => {
     setIsAnalyzing(true);
@@ -272,38 +284,74 @@ const Dashboard: React.FC<DashboardProps> = ({ metricsHistory, currentMetric, lo
           {/* Bottom Row: Logs & Secondary Stats */}
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
             <div className="lg:col-span-2 bg-slate-900 border border-slate-800 rounded-xl p-6 shadow-lg flex flex-col">
-              <h2 className="text-lg font-semibold text-white mb-4 flex items-center gap-2">
-                <Terminal size={20} className="text-slate-400" />
-                Live Terminal
-              </h2>
+              <div className="flex items-center justify-between mb-4">
+                <h2 className="text-lg font-semibold text-white flex items-center gap-2">
+                  <Terminal size={20} className="text-slate-400" />
+                  Live Terminal
+                </h2>
+                
+                {/* Log Filters */}
+                <div className="flex gap-2">
+                   <div className="relative">
+                      <Search size={14} className="absolute left-2.5 top-1/2 -translate-y-1/2 text-slate-500" />
+                      <input 
+                        type="text" 
+                        placeholder="Search logs..." 
+                        value={logSearchTerm}
+                        onChange={(e) => setLogSearchTerm(e.target.value)}
+                        className="bg-slate-950 border border-slate-700 rounded-md py-1 pl-8 pr-3 text-xs text-slate-200 focus:outline-none focus:border-blue-500 w-32 sm:w-48 placeholder:text-slate-600"
+                      />
+                   </div>
+                   <div className="relative">
+                     <Filter size={14} className="absolute left-2.5 top-1/2 -translate-y-1/2 text-slate-500" />
+                     <select 
+                       value={logLevelFilter}
+                       onChange={(e) => setLogLevelFilter(e.target.value as any)}
+                       className="bg-slate-950 border border-slate-700 rounded-md py-1 pl-8 pr-2 text-xs text-slate-200 focus:outline-none focus:border-blue-500 appearance-none cursor-pointer hover:bg-slate-900"
+                     >
+                       <option value="ALL">All Levels</option>
+                       <option value="INFO">Info Only</option>
+                       <option value="WARN">Warnings</option>
+                       <option value="ERROR">Errors</option>
+                     </select>
+                   </div>
+                </div>
+              </div>
+
               <div 
                 className="flex-1 bg-black rounded-lg border border-slate-800 p-4 font-mono text-sm relative overflow-hidden flex flex-col"
                 style={{ height: '240px' }}
               >
                 <div ref={scrollRef} className="overflow-y-auto flex-1 scrollbar-thin pr-2">
-                   {logs.map((log) => (
-                     <div key={log.id} className="mb-1.5 flex items-start group">
-                        <span className="text-slate-600 mr-3 select-none shrink-0">
-                          {formatTime(log.timestamp)}
-                        </span>
-                        <div className="flex items-center gap-2">
-                          <span className={`text-[10px] font-bold px-1.5 rounded-sm uppercase tracking-wide select-none ${
-                            log.level === 'ERROR' ? 'bg-red-900/30 text-red-500' :
-                            log.level === 'WARN' ? 'bg-yellow-900/30 text-yellow-500' :
-                            'bg-blue-900/30 text-blue-500'
-                          }`}>
-                            {log.level}
+                   {filteredLogs.length > 0 ? (
+                     filteredLogs.map((log) => (
+                       <div key={log.id} className="mb-1.5 flex items-start group hover:bg-slate-900/30 -mx-2 px-2 rounded">
+                          <span className="text-slate-600 mr-3 select-none shrink-0 text-[11px] pt-0.5">
+                            {formatTime(log.timestamp)}
                           </span>
-                          <span className={`${
-                            log.level === 'ERROR' ? 'text-red-300' :
-                            log.level === 'WARN' ? 'text-yellow-100' :
-                            'text-slate-300'
-                          }`}>
-                            {log.message}
-                          </span>
-                        </div>
+                          <div className="flex items-center gap-2 flex-wrap">
+                            <span className={`text-[10px] font-bold px-1.5 rounded-sm uppercase tracking-wide select-none ${
+                              log.level === 'ERROR' ? 'bg-red-900/30 text-red-500' :
+                              log.level === 'WARN' ? 'bg-yellow-900/30 text-yellow-500' :
+                              'bg-blue-900/30 text-blue-500'
+                            }`}>
+                              {log.level}
+                            </span>
+                            <span className={`break-all ${
+                              log.level === 'ERROR' ? 'text-red-300' :
+                              log.level === 'WARN' ? 'text-yellow-100' :
+                              'text-slate-300'
+                            }`}>
+                              {log.message}
+                            </span>
+                          </div>
+                       </div>
+                     ))
+                   ) : (
+                     <div className="h-full flex items-center justify-center text-slate-700 italic text-xs">
+                       No logs found matching filter criteria.
                      </div>
-                   ))}
+                   )}
                    <div className="flex items-center text-slate-500 animate-pulse mt-2">
                      <ChevronRight size={14} />
                      <span className="ml-2 w-2 h-4 bg-slate-500 block"></span>
