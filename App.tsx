@@ -140,4 +140,42 @@ const App: React.FC = () => {
         // Add to history
         setHistory(h => {
           const newHistory = [...h, next];
-          if (newHistory.length > 50) newHistory
+          if (newHistory.length > 50) newHistory.shift();
+          return newHistory;
+        });
+
+        return next;
+      });
+    }, 3000); // Update every 3 seconds
+
+    return () => clearInterval(interval);
+  }, [config]);
+
+  // Main Render Logic
+  if (!config) {
+    return <ConnectionPanel onConnect={handleConnect} isConnecting={isConnecting} />;
+  }
+
+  if (viewMode === 'ADS') {
+    return (
+      <AdPlayer 
+        ads={MOCK_ADS} 
+        metrics={currentMetric} 
+        onExit={() => setViewMode('DASHBOARD')} 
+      />
+    );
+  }
+
+  return (
+    <Dashboard 
+      metricsHistory={history}
+      currentMetric={currentMetric}
+      logs={logs}
+      config={config}
+      onDisconnect={handleDisconnect}
+      onEnterAdMode={() => setViewMode('ADS')}
+    />
+  );
+};
+
+export default App;
