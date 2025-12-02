@@ -9,7 +9,7 @@ if (!rootElement) {
 }
 
 interface ErrorBoundaryProps {
-  children: React.ReactNode;
+  children?: React.ReactNode;
 }
 
 interface ErrorBoundaryState {
@@ -20,6 +20,10 @@ interface ErrorBoundaryState {
 // Error Boundary to prevent "Black Screen of Death"
 class ErrorBoundary extends React.Component<ErrorBoundaryProps, ErrorBoundaryState> {
   public state: ErrorBoundaryState = { hasError: false, error: null };
+
+  constructor(props: ErrorBoundaryProps) {
+    super(props);
+  }
 
   static getDerivedStateFromError(error: Error): ErrorBoundaryState {
     return { hasError: true, error };
@@ -53,7 +57,7 @@ class ErrorBoundary extends React.Component<ErrorBoundaryProps, ErrorBoundarySta
           </div>
           <h1 style={{ fontSize: '1.5rem', fontWeight: 'bold', marginBottom: '1rem' }}>System Initialization Failed</h1>
           <p style={{ color: '#94a3b8', marginBottom: '2rem', textAlign: 'center', maxWidth: '500px' }}>
-            The application encountered a critical error during startup. This is often caused by browser security settings or network blocks.
+            The application encountered a critical error during startup.
           </p>
           <div style={{ 
             backgroundColor: '#1e293b', 
@@ -63,7 +67,8 @@ class ErrorBoundary extends React.Component<ErrorBoundaryProps, ErrorBoundarySta
             fontSize: '0.875rem', 
             color: '#fca5a5',
             maxWidth: '100%',
-            overflow: 'auto'
+            overflow: 'auto',
+            maxHeight: '200px'
           }}>
             {this.state.error?.message || 'Unknown Error'}
           </div>

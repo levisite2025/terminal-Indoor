@@ -4,7 +4,13 @@ import { SystemMetrics, AISystemAnalysis } from '../types';
 const getAiClient = () => {
   // CRITICAL FIX: Safe access for process.env in browser environments
   // Chrome 142+ and other strict environments will crash if 'process' is accessed directly without a shim.
-  const apiKey = (typeof process !== 'undefined' && process.env) ? process.env.API_KEY : undefined;
+  
+  // We check if 'process' is defined on window (from our polyfill) or globally
+  const env = (typeof window !== 'undefined' && (window as any).process?.env) 
+              ? (window as any).process.env 
+              : (typeof process !== 'undefined' ? process.env : {});
+              
+  const apiKey = env.API_KEY;
   
   if (!apiKey) {
     console.warn("API_KEY is missing. Using fallback mock service.");

@@ -3,26 +3,29 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <!-- Integration with Chrome/Edge Window Color -->
     <meta name="theme-color" content="#0f172a" />
     
-    <!-- Permissions Policy to allow autoplay and hardware access -->
+    <!-- Permissions Policy -->
     <meta http-equiv="Permissions-Policy" content="autoplay=(self), fullscreen=(self), accelerometer=(), gyroscope=(), magnetometer=()" />
     
     <title>Indoor System Visualizer</title>
+    
+    <!-- CRITICAL POLYFILLS FOR CHROME/EDGE -->
+    <script>
+      // Fix for "process is not defined" error in Recharts/GenAI
+      window.process = {
+        env: {
+          NODE_ENV: 'production',
+          API_KEY: '' // Prevent undefined access
+        }
+      };
+      // Fix for "global is not defined" in some legacy monitoring libs
+      window.global = window;
+    </script>
+
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     
-    <!-- CRITICAL FIX: Polyfill 'process' for browser environments. 
-         Libraries like Recharts or React often crash without this in pure ESM. -->
-    <script>
-      window.process = {
-        env: {
-          NODE_ENV: 'production'
-        }
-      };
-    </script>
-
     <script>
       tailwind.config = {
         theme: {
