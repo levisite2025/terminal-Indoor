@@ -81,34 +81,37 @@ const App: React.FC = () => {
     
     const sleep = (ms: number) => new Promise(r => setTimeout(r, ms));
 
-    // Simulated Boot Sequence (Python/Flask style)
-    addLog('INFO', '> python manage.py runserver 0.0.0.0:8000');
-    await sleep(300);
-    
-    addLog('INFO', 'Watching for file changes with StatReloader');
-    await sleep(300);
-
-    addLog('INFO', 'Performing system checks...');
-    await sleep(200);
-
-    addLog('INFO', 'System check identified no issues (0 silenced).');
-    await sleep(300);
-
+    // Simulated Boot Sequence tailored to connection type
     if (newConfig.type === ConnectionType.CLOUD) {
-       addLog('INFO', 'Django version 4.2.7, using settings "core.settings.prod"');
-       addLog('INFO', 'Starting ASGI/Daphne server at https://sys-viewer.app/');
-       await sleep(400);
-       addLog('INFO', 'TLS 1.3 Handshake successful.');
+        // Django / Python Simulation
+        addLog('INFO', 'admin@server:~$ python manage.py runserver');
+        await sleep(400);
+        addLog('INFO', 'Watching for file changes with StatReloader');
+        await sleep(300);
+        addLog('INFO', 'Performing system checks...');
+        await sleep(200);
+        addLog('INFO', 'System check identified no issues (0 silenced).');
+        await sleep(300);
+        addLog('INFO', 'Django version 4.2.7, using settings "core.settings.prod"');
+        addLog('INFO', 'Starting ASGI/Daphne server at https://sys-viewer.app/');
+        await sleep(300);
+        addLog('INFO', 'TLS 1.3 Handshake successful. Secure Tunnel Established.');
     } else {
-       addLog('INFO', `Flask server running on http://${newConfig.address}:${newConfig.port || 8080}`);
-       addLog('INFO', 'Environment: Production');
-       await sleep(400);
+        // Flask Simulation
+        const port = newConfig.port || '8080';
+        addLog('INFO', `pi@indoor-node:~$ flask run --host=0.0.0.0 --port=${port}`);
+        await sleep(400);
+        addLog('INFO', ' * Serving Flask app "indoor_monitor"');
+        addLog('INFO', ' * Environment: production');
+        addLog('WARN', '   WARNING: This is a development server. Do not use it in a production deployment.');
+        addLog('INFO', '   Use a production WSGI server instead.');
+        await sleep(300);
+        addLog('INFO', ' * Debug mode: off');
+        addLog('INFO', ` * Running on http://${newConfig.address}:${port}/ (Press CTRL+C to quit)`);
     }
 
-    addLog('INFO', 'Worker initialized. Telemetry stream active.');
     await sleep(200);
-
-    addLog('INFO', 'Quit the server with CONTROL-C.');
+    addLog('INFO', 'Worker initialized. Telemetry stream active.');
     await sleep(400);
 
     setConfig(newConfig);
@@ -137,53 +140,4 @@ const App: React.FC = () => {
         // Add to history
         setHistory(h => {
           const newHistory = [...h, next];
-          if (newHistory.length > 50) newHistory.shift(); // Keep last 50 points
-          return newHistory;
-        });
-
-        // Occasional Random System Logs
-        if (Math.random() > 0.98) {
-           const warnings = [
-             "GET /api/v1/telemetry/hvac 200 OK",
-             "POST /api/v1/sync/nodes 201 Created",
-             "Packet loss detected on Zone C",
-             "Optimizing database query cache...",
-             "[WS] Heartbeat received from Node-04"
-           ];
-           addLog('INFO', warnings[Math.floor(Math.random() * warnings.length)]);
-        }
-
-        return next;
-      });
-    }, 2000); // Update every 2 seconds
-
-    return () => clearInterval(interval);
-  }, [config]);
-
-  if (!config) {
-    return <ConnectionPanel onConnect={handleConnect} isConnecting={isConnecting} />;
-  }
-
-  if (viewMode === 'ADS') {
-    return (
-      <AdPlayer 
-        ads={MOCK_ADS} 
-        metrics={currentMetric} 
-        onExit={() => setViewMode('DASHBOARD')} 
-      />
-    );
-  }
-
-  return (
-    <Dashboard 
-      metricsHistory={history}
-      currentMetric={currentMetric}
-      logs={logs}
-      config={config}
-      onDisconnect={handleDisconnect}
-      onEnterAdMode={() => setViewMode('ADS')}
-    />
-  );
-};
-
-export default App;
+          if (newHistory.length > 50) newHistory
