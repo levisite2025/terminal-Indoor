@@ -87,9 +87,9 @@ const ConnectionPanel: React.FC<ConnectionPanelProps> = ({ onConnect, isConnecti
                 </label>
                 <div className="relative group">
                   <input
-                    type={type === ConnectionType.LAN ? "text" : "url"}
+                    type="text" 
                     required
-                    placeholder={type === ConnectionType.LAN ? "192.168.1.100" : "https://sys-viewer.app/..."}
+                    placeholder={type === ConnectionType.LAN ? "192.168.1.100" : "sys-viewer.app/..."}
                     value={address}
                     onChange={(e) => setAddress(e.target.value)}
                     className="w-full bg-slate-950 border border-slate-700 text-white rounded-lg px-4 py-3 pl-10 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all placeholder:text-slate-600"

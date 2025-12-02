@@ -1,6 +1,6 @@
 import React, { useEffect, useState, useRef } from 'react';
 import { AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts';
-import { Activity, Thermometer, Droplets, Wind, Zap, Users, AlertTriangle, Cpu, BrainCircuit, Lock, Globe, Shield, PlayCircle } from 'lucide-react';
+import { Activity, Thermometer, Droplets, Wind, Zap, Users, AlertTriangle, Cpu, BrainCircuit, Lock, Globe, Shield, PlayCircle, Terminal, ChevronRight } from 'lucide-react';
 import { SystemMetrics, LogEntry, AISystemAnalysis, ConnectionConfig, ConnectionType } from '../types';
 import { analyzeSystemMetrics } from '../services/geminiService';
 
@@ -67,7 +67,7 @@ const Dashboard: React.FC<DashboardProps> = ({ metricsHistory, currentMetric, lo
   };
 
   return (
-    <div className="min-h-screen bg-slate-950 flex flex-col">
+    <div className="min-h-screen bg-slate-950 flex flex-col font-sans">
       {/* Top Bar */}
       <header className="bg-slate-900 border-b border-slate-800 h-16 flex items-center justify-between px-6 sticky top-0 z-30 shadow-md">
         <div className="flex items-center gap-3">
@@ -271,43 +271,44 @@ const Dashboard: React.FC<DashboardProps> = ({ metricsHistory, currentMetric, lo
 
           {/* Bottom Row: Logs & Secondary Stats */}
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-            <div className="lg:col-span-2 bg-slate-900 border border-slate-800 rounded-xl p-6 shadow-lg">
+            <div className="lg:col-span-2 bg-slate-900 border border-slate-800 rounded-xl p-6 shadow-lg flex flex-col">
               <h2 className="text-lg font-semibold text-white mb-4 flex items-center gap-2">
-                <Activity size={20} className="text-slate-400" />
-                System Logs
+                <Terminal size={20} className="text-slate-400" />
+                Live Terminal
               </h2>
               <div 
-                ref={scrollRef}
-                className="h-48 overflow-y-auto scrollbar-thin border border-slate-800 rounded-lg bg-slate-950 p-2"
+                className="flex-1 bg-black rounded-lg border border-slate-800 p-4 font-mono text-sm relative overflow-hidden flex flex-col"
+                style={{ height: '240px' }}
               >
-                <table className="w-full text-left text-sm">
-                  <thead className="text-xs text-slate-500 uppercase bg-slate-900 sticky top-0">
-                    <tr>
-                      <th className="p-2">Time</th>
-                      <th className="p-2">Level</th>
-                      <th className="p-2">Message</th>
-                    </tr>
-                  </thead>
-                  <tbody className="divide-y divide-slate-800">
-                    {logs.map((log) => (
-                      <tr key={log.id} className="hover:bg-slate-900/50 transition-colors">
-                        <td className="p-2 text-slate-400 whitespace-nowrap font-mono text-xs">
+                <div ref={scrollRef} className="overflow-y-auto flex-1 scrollbar-thin pr-2">
+                   {logs.map((log) => (
+                     <div key={log.id} className="mb-1.5 flex items-start group">
+                        <span className="text-slate-600 mr-3 select-none shrink-0">
                           {formatTime(log.timestamp)}
-                        </td>
-                        <td className="p-2">
-                          <span className={`px-2 py-0.5 rounded text-[10px] font-bold ${
-                            log.level === 'ERROR' ? 'bg-red-500/20 text-red-400' :
-                            log.level === 'WARN' ? 'bg-yellow-500/20 text-yellow-400' :
-                            'bg-blue-500/20 text-blue-400'
+                        </span>
+                        <div className="flex items-center gap-2">
+                          <span className={`text-[10px] font-bold px-1.5 rounded-sm uppercase tracking-wide select-none ${
+                            log.level === 'ERROR' ? 'bg-red-900/30 text-red-500' :
+                            log.level === 'WARN' ? 'bg-yellow-900/30 text-yellow-500' :
+                            'bg-blue-900/30 text-blue-500'
                           }`}>
                             {log.level}
                           </span>
-                        </td>
-                        <td className="p-2 text-slate-300">{log.message}</td>
-                      </tr>
-                    ))}
-                  </tbody>
-                </table>
+                          <span className={`${
+                            log.level === 'ERROR' ? 'text-red-300' :
+                            log.level === 'WARN' ? 'text-yellow-100' :
+                            'text-slate-300'
+                          }`}>
+                            {log.message}
+                          </span>
+                        </div>
+                     </div>
+                   ))}
+                   <div className="flex items-center text-slate-500 animate-pulse mt-2">
+                     <ChevronRight size={14} />
+                     <span className="ml-2 w-2 h-4 bg-slate-500 block"></span>
+                   </div>
+                </div>
               </div>
             </div>
 
