@@ -1,0 +1,5 @@
+{
+  "name": "Indoor System Visualizer",
+  "description": "A professional dashboard for monitoring indoor facility systems via local IP (LAN) or Web Link (Cloud). Features real-time metric visualization, system logs, and AI-powered anomaly detection.",
+  "requestFramePermissions": []
+}
